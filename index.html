@@ -1,30 +1,123 @@
 <!doctype html>
 <html>
 <head>
+	<meta charset="UTF-8">
 	<meta name="viewport" content="initial-scale=1, width=device-width, shrink-to-fit=no">
 	<title>Slack Letters</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.2/css/bulma.min.css" integrity="sha512-byErQdWdTqREz6DLAA9pCnLbdoGGhXfU6gm1c8bkf7F51JVmUBlayGe2A31VpXWQP+eiJ3ilTAZHCR3vmMyybA==" crossorigin="anonymous" />
 	<style>
+		html, body {
+			background: #334;
+			color: #ccc;
+		}
 
+		.sr-only:not(:focus):not(:active) {
+			clip: rect(0 0 0 0); 
+			clip-path: inset(50%);
+			height: 1px;
+			overflow: hidden;
+			position: absolute;
+			white-space: nowrap; 
+			width: 1px;
+		}
+
+		body {
+			display: flex;
+			align-items: center;
+			height: 100vh;
+		}
+		
+		.wrap {
+			max-width: 700px;
+			margin: 0 auto;
+			padding: 32px;
+		}
+
+		.input-wrap, .color, .output-wrap {
+			padding: 2vh 0;
+		}
+
+		.color label:hover {
+			color: #fff;
+		}
 	</style>
 </head>
 <body>
-	<div class="input">
-		<label for="input">
-			Input
-		</label>
-		<input id="input" type="text">
+	<div class="wrap">
+		<div class="input-wrap">
+			<label for="input">
+				Put your stupid message in here:
+			</label>
+			<input class="input" id="input" type="text" placeholder="Epstein didn't kill himself" autofocus>
+		</div>
+		<div class="color">
+			<p>Pick whatever ugly ass color you want:</p>
+			<label class="radio">
+				<input type="radio" name="color" val="white" checked>
+				White
+			</label>
+			<label class="radio">
+				<input type="radio" name="color" val="yellow">
+				Yellow
+			</label>
+			<label class="radio">
+				<input type="radio" name="color" val="alternating">
+				Alternating
+			</label>
+			<label class="radio">
+				<input type="radio" name="color" val="wildcard">
+				WILDCARD, BITCHES
+			</label>
+		</div>
+		<div class="output-wrap">
+			<label for="output">
+				Click this one to copy it to your clipboard, not that anyone will read it:
+			</label>
+			<input class="input" id="output" type="text" readonly>
+		</div>
 	</div>
-	<div class="output">
-		<label for="output">
-			Output
-		</label>
-		<input id="output" type="text" readonly>
-	</div>
+
 	<script>
-		document.getElementById('input').addEventListener('keydown', () => {
-			const input = this.val;
-			console.log(input);
+		const inputEl = document.getElementById('input');
+		const outputEl = document.getElementById('output');
+
+		const handleInput = function() {
+			const input = inputEl.value;
+			const colorOption = document.querySelector('[name="color"]:checked').getAttribute('val');
+			let color;
+			const output = input.split('').map((char) => {
+				const lowercase = char.toLowerCase();
+				if (lowercase.codePointAt(0) >= 97 && lowercase.codePointAt(0) <= 122) {
+					if (colorOption === 'alternating') {
+						color = (color === 'white' ? 'yellow' : 'white');
+					} else if (colorOption === 'wildcard') {
+						color = (Math.random() < 0.5 ? 'white' : 'yellow');
+					} else {
+						color = colorOption;
+					}
+					return `:alphabet-${color}-${lowercase}:`;
+				}
+				if (lowercase === ' ') {
+					return '  ';
+				}
+				return lowercase;
+			}).join('');
+			outputEl.value = output;
+		};
+
+		document.getElementById('input').addEventListener('keyup', handleInput);
+		Array.from(document.querySelectorAll('[name="color"]')).forEach((radio) => { 
+			radio.addEventListener('focus', () => { 
+				setTimeout(handleInput, 1); 
+			});
 		});
+
+		outputEl.addEventListener('mouseup', () => {
+			outputEl.select();
+			document.execCommand('copy');
+		});
+
+		handleInput();
 	</script>
 </body>
 </html>
