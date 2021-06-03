@@ -87,7 +87,15 @@
 			let color;
 			const output = input.split('').map((char) => {
 				const lowercase = char.toLowerCase();
-				if (lowercase.codePointAt(0) >= 97 && lowercase.codePointAt(0) <= 122) {
+				const codepoint = lowercase.codePointAt(0);
+				const codepointMap = {
+					33: 'exclamation',
+					35: 'hash',
+					63: 'question',
+					65: 'at'
+				};
+				if (
+					codepointMap[codepoint] !== undefined || (codepoint >= 97 && codepoint <= 122)) { // letters + numbers
 					if (colorOption === 'alternating') {
 						color = (color === 'white' ? 'yellow' : 'white');
 					} else if (colorOption === 'wildcard') {
@@ -95,7 +103,10 @@
 					} else {
 						color = colorOption;
 					}
-					return `:alphabet-${color}-${lowercase}:`;
+					if (codepoint >= 97) {
+						return `:alphabet-${color}-${lowercase}:`;
+					}
+					return `:alphabet-${color}-${codepointMap[codepoint]}:`;
 				}
 				if (lowercase === ' ') {
 					return '  ';
